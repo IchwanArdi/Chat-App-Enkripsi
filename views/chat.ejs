@@ -1,0 +1,107 @@
+<%- include('partials/header') %>
+
+<div class="flex flex-col h-screen bg-gray-100">
+  <header class="bg-indigo-600 text-white shadow">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Chat Terenkripsi</h1>
+      <div class="flex items-center">
+        <span class="mr-4">Hello, <%= user.username%></span>
+        <a href="/auth/logout" class="bg-indigo-800 hover:bg-indigo-900 px-4 py-2 rounded transition duration-300">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 overflow-hidden flex flex-col">
+    <div class="container mx-auto px-4 py-4 flex-1 flex flex-col">
+      <div class="bg-white rounded-lg shadow-lg p-4 flex-1 flex flex-col overflow-hidden">
+        <div class="mb-4 p-4 bg-indigo-50 rounded-lg">
+          <h2 class="text-lg font-semibold text-indigo-700">Informasi Keamanan</h2>
+          <p class="text-sm text-gray-700">Semua pesan dalam aplikasi ini dienkripsi menggunakan AES-256 sebelum disimpan di database. Pesan hanya dapat dibaca oleh pengguna aplikasi ini.</p>
+        </div>
+
+        <div id="messages" class="flex-1 overflow-y-auto mb-4 space-y-3 p-2"></div>
+
+        <form id="chat-form" class="flex">
+          <input id="msg" type="text" placeholder="Ketik pesan..." required autocomplete="off" class="flex-1 border rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-lg transition duration-300">Kirim</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const chatForm = document.getElementById('chat-form');
+  const chatMessages = document.getElementById('messages');
+  const userId = '<%= user.id %>';
+  const username = '<%= user.username %>';
+
+  // Connect to Socket.io
+  const socket = io();
+
+  // Join chat
+  socket.emit('joinChat');
+
+  // Get previous messages
+  socket.on('previousMessages', (messages) => {
+    // Clear existing messages
+    chatMessages.innerHTML = '';
+
+    // Display messages
+    messages.forEach((message) => {
+      outputMessage(message);
+    });
+
+    // Scroll down
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+
+  // Message from server
+  socket.on('message', (message) => {
+    outputMessage(message);
+
+    // Scroll down
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+
+  // Message submit
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Get message text
+    const msg = e.target.elements.msg.value.trim();
+
+    if (!msg) return;
+
+    // Emit message to server
+    socket.emit('chatMessage', { text: msg, userId });
+
+    // Clear input
+    e.target.elements.msg.value = '';
+    e.target.elements.msg.focus();
+  });
+
+  // Output message to DOM
+  function outputMessage(message) {
+    const div = document.createElement('div');
+    div.classList.add('p-3', 'rounded-lg', message.sender === username ? 'bg-indigo-100' : 'bg-gray-100');
+
+    div.innerHTML = `
+      <div class="flex justify-between items-start">
+        <span class="font-semibold text-xs ${message.sender === username ? 'text-indigo-700' : 'text-gray-700'}">${message.sender === username ? 'You' : message.sender}</span>
+        <span class="text-xs text-gray-500">${formatTime(new Date(message.createdAt))}</span>
+      </div>
+      <p class="text-gray-800 mt-1">${message.text}</p>
+    `;
+
+    chatMessages.appendChild(div);
+  }
+
+  // Format time
+  function formatTime(date) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+</script>
+
+<%- include('partials/footer') %>
