@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const http = require('http');
 const socketio = require('socket.io');
+const MongoStore = require('connect-mongo');
 
 // Load config
 dotenv.config();
@@ -31,11 +32,23 @@ app.use('/src', express.static(__dirname + '/src'));
 app.set('view engine', 'ejs');
 
 // Session middleware
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'fallback-secret',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      ttl: 14 * 24 * 60 * 60,
+    }),
   })
 );
 
