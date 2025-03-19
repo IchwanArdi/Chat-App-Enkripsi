@@ -41,3 +41,19 @@ button:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4);
 }
+
+.hamburger-line {
+  background-color: black;
+  width: 30px;
+  height: 3px;
+  transition: transform 0.3s ease;
+}
+
+/* Efek saat hamburger aktif */
+.hamburger-active > span:nth-child(1) {
+  transform: translateY(4px) rotate(20deg);
+}
+
+.hamburger-active > span:nth-child(2) {
+  transform: translateY(1px) rotate(20deg);
+}

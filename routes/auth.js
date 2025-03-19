@@ -35,8 +35,8 @@ router.post('/register', async (req, res) => {
   }
 
   // Check password length
-  if (password.length < 6) {
-    errors.push({ msg: 'Password harus memiliki minimal 6 karakter' });
+  if (password.length < 5) {
+    errors.push({ msg: 'Password harus memiliki minimal 5 karakter' });
   }
 
   if (errors.length > 0) {
@@ -86,16 +86,16 @@ router.post('/register', async (req, res) => {
 
 // Login handle
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   try {
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by username
+    const user = await User.findOne({ username });
 
     if (!user) {
       return res.render('login', {
-        errors: [{ msg: 'Email tidak terdaftar' }],
-        email,
+        errors: [{ msg: 'Username tidak terdaftar' }],
+        username,
       });
     }
 
@@ -105,7 +105,7 @@ router.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.render('login', {
         errors: [{ msg: 'Password salah' }],
-        email,
+        username,
       });
     }
 
@@ -121,7 +121,7 @@ router.post('/login', async (req, res) => {
     console.error(err);
     res.render('login', {
       errors: [{ msg: 'Terjadi kesalahan pada server' }],
-      email,
+      username,
     });
   }
 });

@@ -1,51 +1,106 @@
-<%- include('partials/header') %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/icon/logo.png" />
+    <link rel="stylesheet" href="/src/output.css" />
+    <title>Login | Guyu Chat</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 
-<div class="container mx-auto px-4 py-8">
-  <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-    <div class="py-4 px-6 bg-indigo-600">
-      <h2 class="text-2xl font-bold text-white text-center">Login</h2>
-    </div>
+    <style>
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-systemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+        background: linear-gradient(135deg, #1f2937, #111827);
+      }
 
-    <div class="py-8 px-6">
-      <% if(typeof errors !== 'undefined'){ %> <% errors.forEach(function(error) { %>
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-        <span class="block sm:inline"><%= error.msg %></span>
-      </div>
-      <% }); %> <% } %> <% if(success_msg != ''){ %>
-      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-        <span class="block sm:inline"><%= success_msg %></span>
-      </div>
-      <% } %> <% if(error_msg != ''){ %>
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+      input:focus {
+        box-shadow: 0 0 10px #4f46e5;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+      }
+
+      main {
+        animation: fadeIn 0.8s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body class="bg-slate-700">
+    <div class="container mx-auto px-3 md:w-1/2 mt-5">
+      <% if(typeof error_msg != 'undefined' && error_msg != ''){ %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
         <span class="block sm:inline"><%= error_msg %></span>
       </div>
+      <% } %> <% if(typeof success_msg != 'undefined' && success_msg != ''){ %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+        <span class="block sm:inline"><%= success_msg %></span>
+      </div>
       <% } %>
-
-      <form action="/auth/login" method="POST">
-        <div class="mb-4">
-          <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value="<%= typeof email != 'undefined' ? email : '' %>"
-            required
-          />
-        </div>
-
-        <div class="mb-6">
-          <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-          <input type="password" id="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
-        </div>
-
-        <div class="flex items-center justify-between">
-          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">Login</button>
-          <a href="/auth/register" class="inline-block align-baseline font-bold text-sm text-indigo-600 hover:text-indigo-800"> Belum punya akun? </a>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
+    <div class="container mx-auto min-h-screen flex items-center justify-center">
+      <main class="bg-slate-600 text-white py-8 px-10 rounded-2xl shadow-2xl w-full max-w-sm">
+        <img src="/icon/logo.png" alt="icon" class="h-20 mx-auto animate-bounce" />
+        <h3 class="my-3 text-2xl font-bold text-center">Login ke Guyu Chat</h3>
+        <span class="text-sm text-slate-200 block text-center">Silahkan masukan Email dan Password anda.</span>
 
-<%- include('partials/footer') %>
+        <div class="mt-2">
+          <% if(typeof errors !== 'undefined'){ %> <% errors.forEach(function(error) { %>
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline"><%= error.msg %></span>
+          </div>
+          <% }); %> <% } %>
+
+          <div id="pass" class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 hidden" role="alert"><span class="font-medium">Gagal!</span> Filtur lupa password masih dalam tahap mengembangan.</div>
+
+          <form action="/auth/login" method="POST" class="mt-5">
+            <div class="mb-4">
+              <label for="email" class="block text-sm font-bold mb-2">Username</label>
+              <input type="username" id="username" name="username" class="shadow appearance-none border border-slate-400 rounded-lg w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline" required />
+            </div>
+            <div class="mb-6">
+              <label for="password" class="block text-sm font-bold mb-2">Password</label>
+              <input type="password" id="password" name="password" class="shadow appearance-none border border-slate-400 rounded-lg w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline" required />
+            </div>
+
+            <div class="mb-4 text-center">
+              <a href="#" class="text-sm text-blue-300 hover:text-blue-400 password">Lupa Password?</a> |
+              <a href="/auth/register" class="text-sm text-blue-300 hover:text-blue-400">Belum punya Akun?</a>
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg w-full focus:outline-none focus:shadow-outline transition duration-300 cursor-pointer">Login</button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+    <script src="/js/main.js"></script>
+    <script>
+      const password = document.querySelector('.password');
+      password.addEventListener('click', () => {
+        const passAlert = document.querySelector('#pass');
+        passAlert.classList.remove('hidden'); // Tampilkan alert
+
+        // Sembunyikan kembali setelah 3 detik
+        setTimeout(() => {
+          passAlert.classList.add('hidden');
+        }, 3000);
+      });
+    </script>
+  </body>
+</html>

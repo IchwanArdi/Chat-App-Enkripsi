@@ -1,107 +1,425 @@
-<%- include('partials/header') %>
-
-<div class="flex flex-col h-screen bg-gray-100">
-  <header class="bg-indigo-600 text-white shadow">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Chat Terenkripsi</h1>
-      <div class="flex items-center">
-        <span class="mr-4">Hello, <%= user.username%></span>
-        <a href="/auth/logout" class="bg-indigo-800 hover:bg-indigo-900 px-4 py-2 rounded transition duration-300">Logout</a>
-      </div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Terenkripsi</title>
+    <link rel="icon" type="image/png" href="/icon/logo.png" />
+    <link href="/src/output.css" rel="stylesheet" />
+    <!-- <link rel="stylesheet" href="/css/style.css"> -->
+  </head>
+  <body class="bg-gray-100">
+    <% if(typeof error_msg != 'undefined' && error_msg != ''){ %>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <span class="block sm:inline"><%= error_msg %></span>
     </div>
-  </header>
+    <% } %> <% if(typeof success_msg != 'undefined' && success_msg != ''){ %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+      <span class="block sm:inline"><%= success_msg %></span>
+    </div>
+    <% } %>
 
-  <main class="flex-1 overflow-hidden flex flex-col">
-    <div class="container mx-auto px-4 py-4 flex-1 flex flex-col">
-      <div class="bg-white rounded-lg shadow-lg p-4 flex-1 flex flex-col overflow-hidden">
-        <div class="mb-4 p-4 bg-indigo-50 rounded-lg">
-          <h2 class="text-lg font-semibold text-indigo-700">Informasi Keamanan</h2>
-          <p class="text-sm text-gray-700">Semua pesan dalam aplikasi ini dienkripsi menggunakan AES-256 sebelum disimpan di database. Pesan hanya dapat dibaca oleh pengguna aplikasi ini.</p>
+    <div class="flex flex-col h-screen bg-gray-50">
+      <!-- Header -->
+      <header class="bg-indigo-600 text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+          <img src="/icon/logo.png" class="w-12" alt="icon" />
+          <div class="flex items-center">
+            <span class="mr-3 text-sm md:text-base">Hello, <%= user.username %></span>
+            <a href="/auth/logout" class="bg-indigo-700 hover:bg-indigo-800 px-3 py-1 rounded text-sm transition duration-200">Logout</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 flex overflow-hidden">
+        <!-- Sidebar: Users List -->
+        <div class="w-20 md:w-72 bg-white border-r border-gray-200 flex flex-col">
+          <!-- Mobile Toggle Button -->
+          <div class="md:hidden text-center py-2 border-b border-gray-200">
+            <button id="toggle-sidebar" class="text-gray-500 hover:text-indigo-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="overflow-y-auto flex-1 sidebar-content">
+            <!-- Public Chat -->
+            <div class="p-3 flex items-center hover:bg-gray-50 cursor-pointer border-l-4 border-transparent hover:border-indigo-500 transition-all duration-200" id="public-chat" onclick="selectChat('public', null)">
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+              </div>
+              <div class="ml-3 hidden md:block">
+                <h3 class="font-medium text-gray-800">Public Chat</h3>
+                <p class="text-xs text-gray-500">Chat dengan semua orang</p>
+              </div>
+            </div>
+
+            <!-- Direct Messages Header -->
+            <div class="p-3 border-t border-gray-200">
+              <h3 class="text-xs font-medium text-gray-500 hidden md:block">DIRECT MESSAGES</h3>
+            </div>
+
+            <!-- User List -->
+            <div class="user-list">
+              <% users.forEach(function(otherUser) { %>
+              <div
+                class="p-3 flex items-center hover:bg-gray-50 cursor-pointer border-l-4 border-transparent hover:border-indigo-500 transition-all duration-200"
+                data-user-id="<%= otherUser._id %>"
+                onclick="selectChat('private', '<%= otherUser._id %>', '<%= otherUser.username %>')"
+              >
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-600"><%= (otherUser.username || '').charAt(0).toUpperCase() %></div>
+                <div class="ml-3 hidden md:block overflow-hidden">
+                  <h3 class="font-medium text-gray-800 truncate"><%= otherUser.username %></h3>
+                </div>
+              </div>
+              <% }); %>
+            </div>
+          </div>
         </div>
 
-        <div id="messages" class="flex-1 overflow-y-auto mb-4 space-y-3 p-2"></div>
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col">
+          <!-- Chat Header -->
+          <div class="bg-white p-3 border-b border-gray-200 flex items-center">
+            <div id="chat-icon" class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h2 id="chat-title" class="text-lg font-medium text-gray-800">Public Chat</h2>
+              <p id="chat-subtitle" class="text-xs text-gray-500">Chat dengan semua orang</p>
+            </div>
+          </div>
 
-        <form id="chat-form" class="flex">
-          <input id="msg" type="text" placeholder="Ketik pesan..." required autocomplete="off" class="flex-1 border rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-lg transition duration-300">Kirim</button>
-        </form>
-      </div>
+          <!-- Messages Area -->
+          <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+
+          <!-- Encryption Info -->
+          <div class="bg-indigo-50 py-2 px-4 border-t border-indigo-100 text-center">
+            <p class="text-xs text-indigo-600 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              Pesan dienkripsi dengan AES-256
+            </p>
+          </div>
+
+          <!-- Message Input -->
+          <div class="bg-white p-3 border-t border-gray-200">
+            <form id="chat-form" class="flex">
+              <input type="hidden" id="message-type" value="public" />
+              <input type="hidden" id="receiver-id" value="" />
+              <input id="msg" type="text" placeholder="Ketik pesan..." required autocomplete="off" class="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-lg transition duration-200">
+                <span class="hidden sm:inline">Kirim</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </main>
     </div>
-  </main>
-</div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const chatForm = document.getElementById('chat-form');
-  const chatMessages = document.getElementById('messages');
-  const userId = '<%= user.id %>';
-  const username = '<%= user.username %>';
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const chatForm = document.getElementById('chat-form');
+      const chatMessages = document.getElementById('messages');
+      const messageType = document.getElementById('message-type');
+      const receiverId = document.getElementById('receiver-id');
+      const chatTitle = document.getElementById('chat-title');
+      const chatSubtitle = document.getElementById('chat-subtitle');
+      const chatIcon = document.getElementById('chat-icon');
+      const toggleSidebar = document.getElementById('toggle-sidebar');
+      const sidebarContent = document.querySelector('.sidebar-content');
 
-  // Connect to Socket.io
-  const socket = io();
+      const userId = '<%= user.id %>';
+      const username = '<%= user.username %>';
 
-  // Join chat
-  socket.emit('joinChat');
+      let activeChat = 'public';
+      let activeChatReceiverId = null;
 
-  // Get previous messages
-  socket.on('previousMessages', (messages) => {
-    // Clear existing messages
-    chatMessages.innerHTML = '';
+      // Toggle sidebar on mobile
+      if (toggleSidebar) {
+        toggleSidebar.addEventListener('click', () => {
+          const sidebar = document.querySelector('.sidebar-content');
+          sidebar.classList.toggle('mobile-expanded');
+        });
+      }
 
-    // Display messages
-    messages.forEach((message) => {
-      outputMessage(message);
-    });
+      // Connect to Socket.io
+      const socket = io();
 
-    // Scroll down
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
+      // Let the server know who we are
+      socket.emit('userConnected', userId);
 
-  // Message from server
-  socket.on('message', (message) => {
-    outputMessage(message);
+      // Default to public chat on load
+      selectChat('public', null);
 
-    // Scroll down
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
+      // Switch between chats
+      function selectChat(type, userId, userName = null) {
+        // Clear previous messages
+        chatMessages.innerHTML = '';
 
-  // Message submit
-  chatForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+        // Update UI
+        if (type === 'public') {
+          chatTitle.textContent = 'Public Chat';
+          chatSubtitle.textContent = 'Chat dengan semua orang';
+          chatIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>`;
 
-    // Get message text
-    const msg = e.target.elements.msg.value.trim();
+          document.getElementById('public-chat').classList.add('border-indigo-500', 'bg-indigo-50');
 
-    if (!msg) return;
+          // Reset all user chats
+          document.querySelectorAll('.user-list div').forEach((el) => {
+            el.classList.remove('border-indigo-500', 'bg-indigo-50');
+          });
 
-    // Emit message to server
-    socket.emit('chatMessage', { text: msg, userId });
+          messageType.value = 'public';
+          receiverId.value = '';
+          activeChat = 'public';
+          activeChatReceiverId = null;
 
-    // Clear input
-    e.target.elements.msg.value = '';
-    e.target.elements.msg.focus();
-  });
+          // Join public chat room
+          socket.emit('joinPublicChat');
+        } else {
+          chatTitle.textContent = userName;
+          chatSubtitle.textContent = 'Private chat';
+          chatIcon.innerHTML = `<span class="text-lg">${userName.charAt(0).toUpperCase()}</span>`;
 
-  // Output message to DOM
-  function outputMessage(message) {
-    const div = document.createElement('div');
-    div.classList.add('p-3', 'rounded-lg', message.sender === username ? 'bg-indigo-100' : 'bg-gray-100');
+          document.getElementById('public-chat').classList.remove('border-indigo-500', 'bg-indigo-50');
 
-    div.innerHTML = `
-      <div class="flex justify-between items-start">
-        <span class="font-semibold text-xs ${message.sender === username ? 'text-indigo-700' : 'text-gray-700'}">${message.sender === username ? 'You' : message.sender}</span>
-        <span class="text-xs text-gray-500">${formatTime(new Date(message.createdAt))}</span>
-      </div>
-      <p class="text-gray-800 mt-1">${message.text}</p>
-    `;
+          // Reset all user chats
+          document.querySelectorAll('.user-list div').forEach((el) => {
+            el.classList.remove('border-indigo-500', 'bg-indigo-50');
+            // Remove notification indicators
+            const notificationDot = el.querySelector('.notification-dot');
+            if (notificationDot) {
+              notificationDot.remove();
+            }
+          });
 
-    chatMessages.appendChild(div);
-  }
+          // Highlight the current one
+          const currentUserElement = document.querySelector(`.user-list div[data-user-id="${userId}"]`);
+          if (currentUserElement) {
+            currentUserElement.classList.add('border-indigo-500', 'bg-indigo-50');
+            currentUserElement.classList.remove('bg-indigo-100');
+          }
 
-  // Format time
-  function formatTime(date) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-</script>
+          messageType.value = 'private';
+          receiverId.value = userId;
+          activeChat = 'private';
+          activeChatReceiverId = userId;
 
-<%- include('partials/footer') %>
+          // Join private chat room
+          socket.emit('joinPrivateChat', { otherUserId: userId });
+        }
+
+        // Close sidebar on mobile after selection
+        if (window.innerWidth < 768) {
+          sidebarContent.classList.remove('mobile-expanded');
+        }
+      }
+
+      // Get previous public messages
+      socket.on('previousMessages', (messages) => {
+        // Clear existing messages
+        chatMessages.innerHTML = '';
+
+        // Display messages
+        messages.forEach((message) => {
+          outputMessage(message);
+        });
+
+        // Scroll down
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
+
+      // Get previous private messages
+      socket.on('previousPrivateMessages', ({ messages, otherUserId }) => {
+        // Only update if this is the active chat
+        if (activeChat === 'private' && activeChatReceiverId === otherUserId) {
+          // Clear existing messages
+          chatMessages.innerHTML = '';
+
+          // Display messages
+          messages.forEach((message) => {
+            outputMessage(message);
+          });
+
+          // Scroll down
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+
+      // Message from server - public or private
+      socket.on('message', (message) => {
+        if (activeChat === 'public' && !message.isPrivate) {
+          outputMessage(message);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+
+      // Private message from server
+      socket.on('privateMessage', (message) => {
+        // Check if this private message belongs to the current active chat
+        if (activeChat === 'private' && ((message.senderId === activeChatReceiverId && message.receiverId === userId) || (message.receiverId === activeChatReceiverId && message.senderId === userId))) {
+          outputMessage(message);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+
+      // Notification of new private message
+      socket.on('newPrivateMessage', ({ from, fromId }) => {
+        // If we're not currently in a chat with this person, show notification
+        if (activeChat !== 'private' || activeChatReceiverId !== fromId) {
+          // Visual notification - highlight the user in the list
+          const userElement = document.querySelector(`.user-list div[data-user-id="${fromId}"]`);
+          if (userElement) {
+            userElement.classList.add('bg-indigo-100');
+
+            // Add notification dot if not exists
+            if (!userElement.querySelector('.notification-dot')) {
+              const notificationDot = document.createElement('div');
+              notificationDot.className = 'notification-dot bg-red-500 w-2 h-2 rounded-full ml-auto';
+
+              // For mobile, append to the avatar div
+              if (window.innerWidth < 768) {
+                userElement.querySelector('div').appendChild(notificationDot);
+              } else {
+                // For desktop, append to the username
+                userElement.querySelector('h3').appendChild(notificationDot);
+              }
+            }
+          }
+        }
+      });
+
+      // Message submit
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Get message text
+        const msg = e.target.elements.msg.value.trim();
+        const type = messageType.value;
+        const receiver = receiverId.value;
+
+        if (!msg) return;
+
+        if (type === 'public') {
+          // Emit public message to server
+          socket.emit('publicMessage', { text: msg, userId });
+        } else {
+          // Emit private message to server
+          socket.emit('privateMessage', {
+            text: msg,
+            senderId: userId,
+            receiverId: receiver,
+          });
+        }
+
+        // Clear input
+        e.target.elements.msg.value = '';
+        e.target.elements.msg.focus();
+      });
+
+      // Output message to DOM
+      function outputMessage(message) {
+        const div = document.createElement('div');
+
+        // Style based on sender (you or other)
+        const isFromYou = message.senderId === userId || message.sender === username;
+
+        // Position messages differently based on sender
+        div.className = isFromYou ? 'flex flex-col items-end' : 'flex flex-col items-start';
+
+        const timeStr = formatTime(new Date(message.createdAt));
+
+        const msgBubble = document.createElement('div');
+        msgBubble.className = `max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 mb-1 ${isFromYou ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-800'}`;
+
+        // Message text
+        msgBubble.textContent = message.text;
+
+        // Add header with sender info
+        const header = document.createElement('div');
+        header.className = 'text-xs text-gray-500 mb-1';
+
+        let senderName = isFromYou ? 'You' : message.sender;
+
+        if (message.isPrivate) {
+          if (isFromYou) {
+            header.textContent = `${timeStr} • to ${message.receiver}`;
+          } else {
+            header.textContent = `${senderName} • ${timeStr}`;
+          }
+        } else {
+          header.textContent = `${senderName} • ${timeStr}`;
+        }
+
+        // Assemble message
+        div.appendChild(isFromYou ? header : msgBubble);
+        div.appendChild(isFromYou ? msgBubble : header);
+
+        document.querySelector('#messages').appendChild(div);
+      }
+
+      // Format timestamp
+      function formatTime(date) {
+        return date.toLocaleTimeString('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
+      // Add responsive styles for mobile sidebar toggle
+      document.head.insertAdjacentHTML(
+        'beforeend',
+        `
+    <style>
+      @media (max-width: 768px) {
+        .sidebar-content > * {
+          display: block;
+          justify-content: center;
+        }
+        .mobile-expanded {
+          position: absolute;
+          left: 0;
+          top: 48px;
+          bottom: 0;
+          width: 200px;
+          z-index: 10;
+          background: white;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-expanded > * {
+          justify-content: flex-start;
+        }
+        .mobile-expanded .hidden.md\\:block {
+          display: block;
+        }
+      }
+    </style>
+  `
+      );
+    </script>
+  </body>
+</html>
