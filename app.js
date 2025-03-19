@@ -63,11 +63,12 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.set('views', path.join(__dirname, 'views'));
+app.set('views', __dirname + '/views');
 app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
 app.use('/chat', require('./routes/chat'));
 
-// Socket.io
 // Socket.io
 const { encryptMessage, decryptMessage } = require('./utils/encryption');
 const Message = require('./models/Message');
