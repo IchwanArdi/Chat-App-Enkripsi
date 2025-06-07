@@ -1,13 +1,19 @@
 const http = require('http');
 const app = require('./app');
 const socketHandler = require('./socket');
-const socketio = require('socket.io');
+const { Server } = require('socket.io');
 
 // Membuat server HTTP dari aplikasi Express
 const server = http.createServer(app);
 
-// Menghubungkan Socket.IO ke server
-const io = socketio(server);
+// Menghubungkan Socket.IO ke server dengan konfigurasi CORS
+const io = new Server(server, {
+  cors: {
+    origin: 'https://chat-app-enkripsi.vercel.app', // ganti dengan domain frontend kamu
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
 
 // Menjalankan handler untuk semua event socket
 socketHandler(io);
