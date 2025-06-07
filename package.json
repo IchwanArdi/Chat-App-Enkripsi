@@ -2,10 +2,10 @@
   "name": "encrypted-chat-app",
   "version": "1.0.0",
   "description": "Aplikasi chat sederhana dengan enkripsi pesan",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "tailwind": "npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch"
   },
   "keywords": [],
