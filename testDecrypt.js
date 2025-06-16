@@ -5,10 +5,10 @@ const { decryptMessage } = require('./utils/encryption');
 
 // Contoh data dari database (misalnya dari MongoDB)
 const messageData = {
-  _id: '683fb586d20e245ece838305',
-  text: 'U2FsdGVkX1+0yyArDv+Vznra1XfASQ5vbk5GEgsmndI=',
-  sender: 'isna',
-  receiver: 'kiki',
+  _id: '6847266b4ef6621529776709',
+  text: 'U2FsdGVkX1+GuKFo6kHcKDKxy91qQarBAmzKiqh7vIM2LFRyQ7fnUswa4aRJAzWuyuf9wVyef98NdPdIf86g3A==',
+  sender: 'ucup',
+  receiver: 'indah',
   isPrivate: true,
   createdAt: '2025-06-04T01:41:30.451+00:00',
   __v: 0,
