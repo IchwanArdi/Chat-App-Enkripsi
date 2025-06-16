@@ -7,7 +7,7 @@ const { decryptMessage } = require('./utils/encryption');
 const messageData = {
   _id: '6847266b4ef6621529776709',
   text: 'U2FsdGVkX1+GuKFo6kHcKDKxy91qQarBAmzKiqh7vIM2LFRyQ7fnUswa4aRJAzWuyuf9wVyef98NdPdIf86g3A==',
-  sender: 'ucup',
+  sender: 'ichwan',
   receiver: 'indah',
   isPrivate: true,
   createdAt: '2025-06-04T01:41:30.451+00:00',
